@@ -1,0 +1,217 @@
+/* ============================================================
+   RandomWorld Explorer — Animations
+   ============================================================ */
+
+/* ── Keyframes ──────────────────────────────────────────── */
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes pulse-core {
+  0%, 100% { opacity: 0.6; transform: scale(1);    box-shadow: 0 0 10px var(--cyan-dim); }
+  50%       { opacity: 1;   transform: scale(1.05); box-shadow: 0 0 20px var(--cyan-glow); }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1;   box-shadow: 0 0 6px var(--green); }
+  50%       { opacity: 0.4; box-shadow: 0 0 2px var(--green); }
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0);    }
+}
+
+@keyframes toast-out {
+  from { opacity: 1; transform: translateX(0);    }
+  to   { opacity: 0; transform: translateX(20px); }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes scan-line {
+  from { transform: translateY(-100%); }
+  to   { transform: translateY(100vh); }
+}
+
+@keyframes flicker {
+  0%, 100%   { opacity: 1; }
+  92%        { opacity: 1; }
+  93%        { opacity: 0.6; }
+  94%        { opacity: 1; }
+  98%        { opacity: 0.8; }
+  99%        { opacity: 1; }
+}
+
+@keyframes orbit-ping {
+  0%   { transform: scale(1);   opacity: 0.8; }
+  100% { transform: scale(2.5); opacity: 0;   }
+}
+
+@keyframes data-stream {
+  from { background-position: 0% 0%; }
+  to   { background-position: 0% 100%; }
+}
+
+@keyframes pop-in {
+  0%   { transform: scale(0.8); opacity: 0; }
+  60%  { transform: scale(1.05); }
+  100% { transform: scale(1);   opacity: 1; }
+}
+
+@keyframes cinematic-bars {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 var(--cyan-dim); }
+  50%       { box-shadow: 0 0 0 4px var(--cyan-dim); }
+}
+
+/* ── Applied Animations ─────────────────────────────────── */
+
+/* Panels slide in on load */
+#top-nav       { animation: fade-up 0.6s ease 0.1s both; }
+#sidebar-left  { animation: fade-up 0.6s ease 0.2s both; }
+#panel-right   { animation: fade-up 0.6s ease 0.25s both; }
+#bottom-hud    { animation: fade-up 0.6s ease 0.3s both; }
+#mini-map      { animation: fade-up 0.6s ease 0.35s both; }
+
+/* Info card fade in */
+.info-card { animation: fade-up 0.35s ease both; }
+
+/* Item cards pop in */
+.item-card { animation: pop-in 0.3s ease both; }
+
+/* Search dropdown fade */
+.search-dropdown:not(.hidden) { animation: fade-up 0.2s ease both; }
+
+/* Popup */
+.popup:not(.hidden) { animation: pop-in 0.25s ease both; }
+
+/* Toast stack */
+.toast { animation: toast-in 0.3s ease both; }
+
+/* Random button active spin */
+#btn-random.spinning .btn-icon {
+  display: inline-block;
+  animation: spin 0.5s linear infinite;
+}
+
+/* Cinematic letterbox bars */
+#cinematic-overlay:not(.hidden)::before,
+#cinematic-overlay:not(.hidden)::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  height: 80px;
+  background: #000;
+  animation: cinematic-bars 0.5s ease both;
+  transform-origin: top center;
+}
+
+#cinematic-overlay:not(.hidden)::before { top: 0; transform-origin: top; }
+#cinematic-overlay:not(.hidden)::after  { bottom: 0; transform-origin: bottom; }
+
+/* Globe loading rings hover */
+.globe-ring:hover { opacity: 0.8; }
+
+/* Active layer button pulse */
+.layer-btn.active {
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+/* Status dot variations */
+.status-dot.loading {
+  animation: spin 1s linear infinite;
+  border-radius: 0;
+  background: none;
+  border: 2px solid var(--amber);
+  border-top-color: transparent;
+  box-shadow: none;
+}
+
+/* Coordinate HUD flicker on update */
+.hud-value.updated {
+  animation: flicker 0.3s ease;
+}
+
+/* Scanning line effect on loading screen */
+#loading-screen::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--cyan-dim), transparent);
+  animation: scan-line 3s linear infinite;
+  pointer-events: none;
+}
+
+/* Mini map pulse on location change */
+#mini-map.updated::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: var(--cyan);
+  animation: orbit-ping 0.8s ease forwards;
+}
+
+/* Smooth sidebar toggle */
+.sidebar {
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Button press feedback */
+.nav-btn:active,
+.hud-btn:active,
+.popup-btn:active,
+.layer-btn:active {
+  transform: scale(0.95);
+  transition: transform 0.1s ease;
+}
+
+/* ── Weather Overlay Animation ───────────────────────────── */
+.weather-layer {
+  animation: data-stream 20s linear infinite;
+}
+
+/* ── Transition utilities ────────────────────────────────── */
+.transition-all { transition: all 0.2s ease; }
+
+.slide-in-right {
+  animation: fade-up 0.3s ease both;
+}
+
+/* Loading skeleton pulse */
+.skeleton {
+  background: linear-gradient(90deg,
+    rgba(255,255,255,0.04) 25%,
+    rgba(255,255,255,0.08) 50%,
+    rgba(255,255,255,0.04) 75%);
+  background-size: 200% 100%;
+  animation: data-stream 1.5s infinite;
+  border-radius: 4px;
+}
+
+.skeleton-line {
+  height: 12px;
+  margin-bottom: 8px;
+}
+
+.skeleton-line.wide  { width: 100%; }
+.skeleton-line.mid   { width: 70%; }
+.skeleton-line.short { width: 40%; }

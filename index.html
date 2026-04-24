@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>World Explorer</title>
+
+  <!-- CesiumJS -->
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Cesium.js"></script>
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
+
+  <!-- Mapillary JS -->
+  <script src="https://unpkg.com/mapillary-js@4.1.0/dist/mapillary.js"></script>
+  <link href="https://unpkg.com/mapillary-js@4.1.0/dist/mapillary.css" rel="stylesheet" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <!-- App Styles -->
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+  <style>
+    /* Mapillary Viewer Styling */
+    #mapillary-viewer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+    }
+    .mly-fallback {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: #aaa;
+      text-align: center;
+      padding: 20px;
+    }
+    .mly-icon { font-size: 48px; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+
+  <!-- Loading Screen -->
+  <div id="loading-screen">
+    <div class="loader-globe">
+      <div class="globe-ring ring-1"></div>
+      <div class="globe-ring ring-2"></div>
+      <div class="globe-ring ring-3"></div>
+      <div class="globe-core"></div>
+    </div>
+    <div class="loader-text">
+      <span class="loader-title">WORLD</span>
+      <span class="loader-subtitle">EXPLORER</span>
+    </div>
+    <div class="loader-status" id="loader-status">Initializing Globe Engine...</div>
+    <div class="loader-bar"><div class="loader-bar-fill" id="loader-bar-fill"></div></div>
+  </div>
+
+  <!-- Main Map Container -->
+  <div id="cesiumContainer"></div>
+
+  <!-- Top Navigation Bar -->
+  <nav id="top-nav">
+    <div class="nav-brand">
+      <div class="nav-logo">
+        <div class="logo-dot"></div>
+        <div class="logo-dot"></div>
+        <div class="logo-dot"></div>
+      </div>
+      <span class="nav-title">WORLD EXPLORER</span>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-container" id="search-container">
+      <div class="search-icon">⊕</div>
+      <input type="text" id="search-input" placeholder="Search any place on Earth..." autocomplete="off" />
+      <button id="search-btn" class="search-submit">→</button>
+      <div id="search-dropdown" class="search-dropdown hidden"></div>
+    </div>
+
+    <div class="nav-actions">
+      <button class="nav-btn" id="btn-random" title="Random Location">
+        <span class="btn-icon">⚄</span>
+        <span class="btn-label">RANDOM</span>
+      </button>
+      <button class="nav-btn" id="btn-cinematic" title="Cinematic Mode">
+        <span class="btn-icon">◉</span>
+        <span class="btn-label">CINEMATIC</span>
+      </button>
+      <button class="nav-btn" id="btn-fullscreen" title="Fullscreen">
+        <span class="btn-icon">⛶</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Left Sidebar: Layers & Tools -->
+  <div id="sidebar-left" class="sidebar glass-panel">
+    <div class="sidebar-header">
+      <span>LAYERS</span>
+      <button class="sidebar-toggle" id="toggle-left">◀</button>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="section-title">MAP STYLE</div>
+      <div class="layer-options">
+        <button class="layer-btn active" data-layer="satellite" id="layer-satellite">
+          <span class="layer-icon">🛰</span>
+          <span>Satellite</span>
+        </button>
+        <button class="layer-btn" data-layer="osm" id="layer-osm">
+          <span class="layer-icon">🗺</span>
+          <span>Street Map</span>
+        </button>
+        <button class="layer-btn" data-layer="terrain" id="layer-terrain">
+          <span class="layer-icon">⛰</span>
+          <span>Terrain</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="section-title">OVERLAYS</div>
+      <label class="toggle-row">
+        <span>Weather</span>
+        <div class="toggle-switch">
+          <input type="checkbox" id="toggle-weather" />
+          <span class="toggle-slider"></span>
+        </div>
+      </label>
+      <label class="toggle-row">
+        <span>Day / Night</span>
+        <div class="toggle-switch">
+          <input type="checkbox" id="toggle-daynight" />
+          <span class="toggle-slider"></span>
+        </div>
+      </label>
+      <label class="toggle-row">
+        <span>Grid Lines</span>
+        <div class="toggle-switch">
+          <input type="checkbox" id="toggle-grid" />
+          <span class="toggle-slider"></span>
+        </div>
+      </label>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="section-title">RANDOM FILTER</div>
+      <label class="toggle-row">
+        <span>Land Only</span>
+        <div class="toggle-switch">
+          <input type="checkbox" id="filter-land" checked />
+          <span class="toggle-slider"></span>
+        </div>
+      </label>
+      <label class="toggle-row">
+        <span>Interesting Places</span>
+        <div class="toggle-switch">
+          <input type="checkbox" id="filter-interesting" />
+          <span class="toggle-slider"></span>
+        </div>
+      </label>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="section-title">NAVIGATION</div>
+      <div class="kbd-grid">
+        <div class="kbd-row"><kbd>W/S</kbd><span>Tilt</span></div>
+        <div class="kbd-row"><kbd>A/D</kbd><span>Rotate</span></div>
+        <div class="kbd-row"><kbd>+/-</kbd><span>Zoom</span></div>
+        <div class="kbd-row"><kbd>Space</kbd><span>Reset</span></div>
+        <div class="kbd-row"><kbd>R</kbd><span>Random</span></div>
+        <div class="kbd-row"><kbd>F</kbd><span>Fullscreen</span></div>
+        <div class="kbd-row"><kbd>C</kbd><span>Cinematic</span></div>
+        <div class="kbd-row"><kbd>B</kbd><span>Bookmark</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Panel: Info + Bookmarks + History -->
+  <div id="panel-right" class="sidebar sidebar-right glass-panel">
+    <div class="panel-tabs">
+      <button class="tab-btn active" data-tab="info">INFO</button>
+      <button class="tab-btn" data-tab="bookmarks">SAVES</button>
+      <button class="tab-btn" data-tab="history">HISTORY</button>
+    </div>
+
+    <!-- INFO TAB -->
+    <div class="tab-content active" id="tab-info">
+      <div id="location-info" class="info-empty">
+        <div class="info-placeholder">
+          <div class="placeholder-icon">⊕</div>
+          <p>Click anywhere on the globe to explore</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOOKMARKS TAB -->
+    <div class="tab-content" id="tab-bookmarks">
+      <div class="tab-toolbar">
+        <span class="tab-count" id="bookmark-count">0 saved</span>
+        <button class="clear-btn" id="clear-bookmarks">Clear All</button>
+      </div>
+      <div id="bookmarks-list" class="items-list">
+        <div class="empty-state">No bookmarks yet.<br/>Press <kbd>B</kbd> to save a location.</div>
+      </div>
+    </div>
+
+    <!-- HISTORY TAB -->
+    <div class="tab-content" id="tab-history">
+      <div class="tab-toolbar">
+        <span class="tab-count" id="history-count">0 visited</span>
+        <button class="clear-btn" id="clear-history">Clear</button>
+      </div>
+      <div id="history-list" class="items-list">
+        <div class="empty-state">No history yet.<br/>Start exploring!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom HUD: Coordinates & Status -->
+  <div id="bottom-hud" class="glass-panel">
+    <div class="hud-coords">
+      <span class="hud-label">LAT</span>
+      <span class="hud-value mono" id="hud-lat">---.------</span>
+      <span class="hud-divider">|</span>
+      <span class="hud-label">LNG</span>
+      <span class="hud-value mono" id="hud-lng">---.------</span>
+      <span class="hud-divider">|</span>
+      <span class="hud-label">ALT</span>
+      <span class="hud-value mono" id="hud-alt">--- km</span>
+    </div>
+    <div class="hud-status">
+      <div class="status-dot" id="status-dot"></div>
+      <span id="status-text">Ready</span>
+    </div>
+    <div class="hud-right">
+      <button class="hud-btn" id="btn-share" title="Share Location">⊞ SHARE</button>
+      <button class="hud-btn" id="btn-bookmark-hud" title="Bookmark">⊕ SAVE</button>
+    </div>
+  </div>
+
+  <!-- Street View Modal (Now Mapillary) -->
+  <div id="streetview-modal" class="modal hidden">
+    <div class="modal-header">
+      <span>STREET EXPLORER</span>
+      <button class="modal-close" id="close-streetview">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="mapillary-viewer"></div>
+      <div id="street-static-view" class="street-static-view hidden">
+        <img id="street-static-img" alt="Street-level photo near this location" />
+        <p class="street-static-credit" id="street-static-credit"></p>
+      </div>
+      <div id="streetview-fallback" class="sv-fallback hidden">
+        <div class="sv-icon">📷</div>
+        <p>No street imagery available for this location.</p>
+        <p class="sv-sub">Try a nearby urban area.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Location Info Popup (on click) -->
+  <div id="location-popup" class="popup glass-panel hidden">
+    <div class="popup-header">
+      <span id="popup-title">Location</span>
+      <button class="popup-close" id="close-popup">✕</button>
+    </div>
+    <div class="popup-body">
+      <div class="popup-coords">
+        <span id="popup-lat"></span> · <span id="popup-lng"></span>
+      </div>
+      <div id="popup-details" class="popup-details"></div>
+    </div>
+    <div class="popup-actions">
+      <button class="popup-btn" id="popup-fly">✈ FLY TO</button>
+      <button class="popup-btn" id="popup-streetview">👁 STREET VIEW</button>
+      <button class="popup-btn" id="popup-save">⊕ SAVE</button>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast-container"></div>
+
+  <!-- Cinematic Mode Overlay -->
+  <div id="cinematic-overlay" class="hidden">
+    <div class="cin-info">
+      <div class="cin-label">CINEMATIC MODE</div>
+      <div class="cin-location" id="cin-location-name">—</div>
+    </div>
+    <button class="cin-exit" id="exit-cinematic">EXIT ✕</button>
+  </div>
+
+  <!-- Mini Map -->
+  <div id="mini-map" class="glass-panel">
+    <canvas id="mini-canvas" width="160" height="100"></canvas>
+    <div class="mini-crosshair"></div>
+  </div>
+
+  <!-- Vite: reads .env then loads /js/*.js in order (see inject-env.js) -->
+  <script type="module" src="/inject-env.js"></script>
+</body>
+</html>

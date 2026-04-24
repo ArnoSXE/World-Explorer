@@ -1,0 +1,49 @@
+# Environment Variables - NEVER commit these
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+
+# Dependencies & build output (regenerate with npm install / npm run build)
+node_modules/
+dist/
+.vite/
+.cache/
+
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+
+# IDE & Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.sublime-project
+.sublime-workspace
+
+# Project Files
+*.zip
+*.log
+*.log.*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Temporary files
+.tmp/
+.temp/
+*.tmp
+
+# API Keys & Secrets (if accidentally added)
+**/secrets.js
+**/config.local.js
+.env.*.local
